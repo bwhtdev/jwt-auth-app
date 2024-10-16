@@ -13,6 +13,13 @@ import (
 )
 
 type Storage interface {
+	CreateUser(*types.User) error
+	GetUserByID(string) (*types.User, error)
+	GetUserByUsername(string) (*types.User, error)
+	//GetUsers() ([]*types.User, error)
+	UpdateUser(*types.User) error
+	DeleteUser(string) error
+	
 	GetPeople() ([]*types.People, error)
 }
 

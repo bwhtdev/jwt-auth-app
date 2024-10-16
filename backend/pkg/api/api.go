@@ -1,13 +1,20 @@
 package api
 
 import (
-  "log"
-  "net/http"
-  "encoding/json"
+	"encoding/json"
+	"fmt"
+	"bytes"
+	"io"
+	"log"
+	"strings"
+	"net/http"
+	"os"
 
-  "github.com/rs/cors"
-  "github.com/gorilla/mux"
-  storage "backend/pkg/storage"
+	"github.com/gorilla/mux"
+	"github.com/rs/cors"
+	jwt "github.com/golang-jwt/jwt/v4"
+	types "backend/pkg/types"
+	storage "backend/pkg/storage"
 )
 
 type APIServer struct {
@@ -29,6 +36,11 @@ func (s *APIServer) Run() {
 	// Handlers::
 	r.HandleFunc("/ping", makeHTTPHandlerFunc(s.handlePing))
 	r.HandleFunc("/people", makeHTTPHandlerFunc(s.handlePeople))
+
+	r.HandleFunc("/login", makeHTTPHandlerFunc(s.handleLogin))
+	r.HandleFunc("/sign-up", makeHTTPHandlerFunc(s.handleSignUp))
+
+	//r.HandleFunc("/user", makeHTTPHandleFunc(s.handleUser))
 	
 	c := cors.New(cors.Options{
 		//AllowedOrigins: []string{webPort},
@@ -76,4 +88,107 @@ func (s *APIServer) handlePing(w http.ResponseWriter, r *http.Request) error {
 		Health bool `json:"health"`
 	}
 	return WriteJSON(w, http.StatusOK, PingData{ Health: true })
+}
+
+func createJWT(user *types.User) (string, error) {
+	claims := &jwt.MapClaims{
+		"expiresAt":     15000,
+		"username":      user.Username,
+	}
+
+	secret := os.Getenv("BACKEND_JWT_SECRET")
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString([]byte(secret))
+}
+
+func permissionDenied(w http.ResponseWriter) {
+	WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+}
+
+func withJWTAuth(handlerFunc http.HandlerFunc, s storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("calling JWT auth middleware")
+
+		tokenString := strings.Split(r.Header.Get("Authorization"), "Bearer ")[1]
+		token, err := validateJWT(tokenString)
+		if err != nil {
+			permissionDenied(w)
+			return
+		}
+		if !token.Valid {
+			permissionDenied(w)
+			return
+		}
+
+		claims := token.Claims.(jwt.MapClaims)
+
+	    type Request struct {
+			Username      string    `json:"username"`
+	    }
+	    if r.Body != nil {
+			body, req, err := GetBodyData[Request](r)
+			if err != nil {
+				permissionDenied(w)
+				return
+			}
+
+			if req.Username != claims["username"]	{
+				permissionDenied(w)
+				return
+			}
+
+			r.Body = io.NopCloser(bytes.NewBuffer(body))
+	    } else if getID(r, "username") != claims["username"] {
+			permissionDenied(w)
+			return
+	    }
+
+		if err != nil {
+			WriteJSON(w, http.StatusForbidden, ApiError{Error: "invalid token"})
+			return
+		}
+		
+	    handlerFunc(w, r)
+
+	    defer r.Body.Close()
+	}
+}
+
+func GetBodyData[T any](r *http.Request) ([]byte, *T, error) {
+  if r.Body == nil {
+    return nil, nil, fmt.Errorf("body missing data")
+  }
+  req := new(T)
+  body, err := io.ReadAll(r.Body)
+  if err != nil {
+    return nil, nil, err
+  }
+  
+  rdr1 := body
+  rdr2 := body
+  
+  err = json.Unmarshal(rdr1, &req)
+  if err != nil {
+    return nil, nil, err
+  }
+  return rdr2, req, nil
+}
+
+func validateJWT(tokenString string) (*jwt.Token, error) {
+	secret := os.Getenv("BACKEND_JWT_SECRET")
+
+	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+		return []byte(secret), nil
+	})
+}
+
+func getID(r *http.Request, name string) string {
+	return mux.Vars(r)[name]
 }
