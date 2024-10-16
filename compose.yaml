@@ -1,0 +1,90 @@
+services:
+  nginx:
+    build:
+      context: proxy
+      args:
+        PROXY_PORT: ${PROXY_PORT}
+        FRONTEND_PORT: ${FRONTEND_PORT}
+        BACKEND_PORT: ${BACKEND_PORT}
+    container_name: proxy
+    ports:
+      - ${PROXY_PORT}:${PROXY_PORT}
+    depends_on:
+      - frontend
+    env_file: .env
+    networks:
+      - client
+  frontend:
+    build:
+      context: frontend
+      args:
+        PORT: ${FRONTEND_PORT}
+    container_name: frontend
+    expose:
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
+    depends_on:
+      backend:
+        condition: service_healthy
+    env_file: .env
+    networks:
+      - client
+  backend:
+    image: cosmtrek/air
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD_FILE=${POSTGRES_PASSWORD_FILE}
+
+      - FRONTEND_PORT=${FRONTEND_PORT}
+
+      - BACKEND_PORT=${BACKEND_PORT}
+    working_dir: /src
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://backend:${BACKEND_PORT}/v1/ping"]
+      interval: 20s
+      retries: 5
+      start_period: 10s
+    container_name: backend
+    secrets:
+      - db-password
+    expose:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/:/src/
+    env_file: .env
+    networks:
+      - client
+      - server
+  db:
+    image: postgres:12-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD_FILE=${POSTGRES_PASSWORD_FILE}
+    user: ${POSTGRES_USER}
+    restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    secrets:
+      - db-password
+    expose:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    volumes:
+      - db-data:/var/lib/postgres/data
+    networks:
+      - server
+volumes:
+  db-data: {}
+  backend: {}
+secrets:
+  db-password:
+    file: db/password.txt
+networks:
+  client: {}
+  server: {}
