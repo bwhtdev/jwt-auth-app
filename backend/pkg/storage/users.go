@@ -4,24 +4,22 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/google/uuid"
 	types "backend/pkg/types"
 )
 
-func (s *DBStore) CreateUser(user *types.User) error {
+func (s *DBStore) CreateUser(user *types.User) (uuid.UUID, error) {
+	var id uuid.UUID
+	
 	query := `INSERT INTO users
-	(username, encrypted_password)
-	VALUES ($1, $2);`
-
-	_, err := s.db.Query(
-		query,
-		user.Username,
-		user.EncryptedPassword)
-
+		(username, encrypted_password)
+		VALUES ($1, $2)
+		RETURNING id;`
+	err := s.db.QueryRow(query, user.Username, user.EncryptedPassword).Scan(&id)
 	if err != nil {
-		return err
+		return uuid.New(), err
 	}
-
-	return nil
+	return id, nil
 }
 
 func (s *DBStore) UpdateUser(user *types.User) error {

@@ -52,9 +52,13 @@ func (s *APIServer) handleSignUp(w http.ResponseWriter, r *http.Request) error {
 	    if err != nil {
 	      return err
 	    }
-	    if err := s.store.CreateUser(user); err != nil {
+	    
+		id, err := s.store.CreateUser(user)
+		if err != nil {
 	      return err
 	    }
+
+	    user.ID = id
 
 	    return WriteJSON(w, http.StatusOK, user)
 	}

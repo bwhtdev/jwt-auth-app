@@ -9,11 +9,12 @@ import (
 	"log"
 
 	_ "github.com/lib/pq"
+	"github.com/google/uuid"
 	types "backend/pkg/types"
 )
 
 type Storage interface {
-	CreateUser(*types.User) error
+	CreateUser(*types.User) (uuid.UUID, error)
 	GetUserByID(string) (*types.User, error)
 	GetUserByUsername(string) (*types.User, error)
 	//GetUsers() ([]*types.User, error)
@@ -73,7 +74,12 @@ func (s *DBStore) createTables() error {
 }
 
 func (s *DBStore) Seed() error {
-	return s.seedPeople()
+	err := s.seedPeople()
+	if err != nil {
+		return err
+	}
+
+	return s.seedUsers()
 }
 
 func (s *DBStore) seedPeople() error {
@@ -101,6 +107,32 @@ func (s *DBStore) seedPerson(name string) error {
 	}
 
 	fmt.Println("new person => ", id)
+
+	return nil
+}
+
+func (s *DBStore) seedUsers() error {
+	err := s.seedUser("user1", "password123")
+	if err != nil {
+		return err
+	}
+	return s.seedUser("user2", "password123")
+}
+
+func (s *DBStore) seedUser(username, password string) error {
+	user, err := types.NewUser(username, password)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
+	id, err := s.CreateUser(user)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
+	fmt.Println("new user => ", id)
 
 	return nil
 }
