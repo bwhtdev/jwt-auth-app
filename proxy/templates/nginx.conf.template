@@ -1,17 +1,20 @@
 upstream frontend {
-  server frontend:$FRONTEND_PORT;
+  server frontend:${FRONTEND_PORT};
 }
 
 upstream backend {
-  server backend:$BACKEND_PORT;
+  server backend:${BACKEND_PORT};
 }
 
 server {
 
-  listen $PROXY_PORT;
+  listen ${PROXY_PORT};
 
   location /api/ {
     proxy_pass http://backend/;
+    proxy_pass_header Authorization;
+    proxy_set_header Authorization $http_authorization; # Pass the Authorization header
+    proxy_http_version 1.1;
   }
 
   location / {

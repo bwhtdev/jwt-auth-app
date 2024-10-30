@@ -7,6 +7,6 @@ ARG PROXY_PORT
 ARG FRONTEND_PORT
 ARG BACKEND_PORT
 
-RUN envsubst < /proxy/nginx.conf.template > /etc/nginx/conf.d/default.conf
+RUN envsubst '$PROXY_PORT $FRONTEND_PORT $BACKEND_PORT' < /proxy/nginx.conf.template > /etc/nginx/conf.d/default.conf
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]

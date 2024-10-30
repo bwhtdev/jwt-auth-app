@@ -66,12 +66,14 @@ func (s *APIServer) handleSignUp(w http.ResponseWriter, r *http.Request) error {
 	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
-func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) error {
-	id := getID(r, "username")
+//
 
-	if err := s.store.DeleteUser(id); err != nil {
+func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) error {
+	username := getID(r, "username")
+
+	if err := s.store.DeleteUser(username); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, map[string]string{"deleted": id})
+	return WriteJSON(w, http.StatusOK, map[string]string{"deleted": username})
 }

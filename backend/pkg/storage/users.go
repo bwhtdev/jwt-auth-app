@@ -39,8 +39,8 @@ func (s *DBStore) UpdateUser(user *types.User) error {
 	return nil
 }
 
-func (s *DBStore) DeleteUser(id string) error {
-	_, err := s.db.Query("DELETE FROM users WHERE id = $1", id)
+func (s *DBStore) DeleteUser(username string) error {
+	_, err := s.db.Exec("DELETE FROM users WHERE username = $1;", username)
 	return err
 }
 

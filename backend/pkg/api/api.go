@@ -34,14 +34,23 @@ func (s *APIServer) Run() {
 	r := router.PathPrefix("/v1/").Subrouter()
 
 	// Handlers::
+
 	r.HandleFunc("/ping", makeHTTPHandlerFunc(s.handlePing))
 	r.HandleFunc("/people", makeHTTPHandlerFunc(s.handlePeople))
+	r.HandleFunc("/test-auth/{username}", withJWTAuth(makeHTTPHandlerFunc(s.handleTestAuth)))
 
+	// User handlers:
 	r.HandleFunc("/login", makeHTTPHandlerFunc(s.handleLogin))
 	r.HandleFunc("/sign-up", makeHTTPHandlerFunc(s.handleSignUp))
 
-	//r.HandleFunc("/user", makeHTTPHandleFunc(s.handleUser))
+	// r.HandleFunc("/user", makeHTTPHandlerFunc(s.handleUser))
+	// r.HandleFunc("/user/id/{id}", makeHTTPHandlerFunc(s.handleUserByID))
+	// r.HandleFunc("/user/username/{username}", makeHTTPHandlerFunc(s.handleUserByUsername))
 	
+	//r.HandleFunc("/delete-account/{username}", makeHTTPHandlerFunc(s.handleDeleteAccount))
+	r.HandleFunc("/delete-account/{username}", withJWTAuth(makeHTTPHandlerFunc(s.handleDeleteAccount)))
+
+
 	c := cors.New(cors.Options{
 		//AllowedOrigins: []string{webPort},
 		AllowedMethods: []string{
@@ -106,9 +115,9 @@ func permissionDenied(w http.ResponseWriter) {
 	WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
 }
 
-func withJWTAuth(handlerFunc http.HandlerFunc, s storage.Storage) http.HandlerFunc {
+func withJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("calling JWT auth middleware")
+		log.Print("calling JWT auth middleware")//, r.Header.Get("Authorization"))
 
 		tokenString := strings.Split(r.Header.Get("Authorization"), "Bearer ")[1]
 		token, err := validateJWT(tokenString)
