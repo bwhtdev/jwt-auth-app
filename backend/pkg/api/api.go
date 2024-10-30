@@ -36,8 +36,6 @@ func (s *APIServer) Run() {
 	// Handlers::
 
 	r.HandleFunc("/ping", makeHTTPHandlerFunc(s.handlePing))
-	r.HandleFunc("/people", makeHTTPHandlerFunc(s.handlePeople))
-	r.HandleFunc("/test-auth/{username}", withJWTAuth(makeHTTPHandlerFunc(s.handleTestAuth)))
 
 	// User handlers:
 	r.HandleFunc("/login", makeHTTPHandlerFunc(s.handleLogin))
@@ -49,6 +47,10 @@ func (s *APIServer) Run() {
 	
 	//r.HandleFunc("/delete-account/{username}", makeHTTPHandlerFunc(s.handleDeleteAccount))
 	r.HandleFunc("/delete-account/{username}", withJWTAuth(makeHTTPHandlerFunc(s.handleDeleteAccount)))
+
+
+	// Message handlers:
+	r.HandleFunc("/messages", makeHTTPHandlerFunc(s.handleMessages))
 
 
 	c := cors.New(cors.Options{

@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"log"
+    "math/rand/v2"
 
 	_ "github.com/lib/pq"
 	"github.com/google/uuid"
@@ -21,7 +22,7 @@ type Storage interface {
 	UpdateUser(*types.User) error
 	DeleteUser(string) error
 	
-	GetPeople() ([]*types.People, error)
+	GetMessages() ([]*types.Message, error)
 }
 
 type DBStore struct {
@@ -74,7 +75,7 @@ func (s *DBStore) createTables() error {
 }
 
 func (s *DBStore) Seed() error {
-	err := s.seedPeople()
+	err := s.seedMessages()
 	if err != nil {
 		return err
 	}
@@ -82,9 +83,15 @@ func (s *DBStore) Seed() error {
 	return s.seedUsers()
 }
 
-func (s *DBStore) seedPeople() error {
+func (s *DBStore) seedMessages() error {
 	for i := 0; i < 5; i++ {
-		err := s.seedPerson(fmt.Sprintf("Person #%d", i))
+		randNum := rand.IntN(2) % 2
+		randUsername := "user1"
+		if randNum == 1 {
+			randUsername = "user2"
+		}
+		
+		err := s.seedMessage(fmt.Sprintf("Msg #%d", i), randUsername)
 		if err != nil {
 			log.Fatal(err)
 			return err
@@ -93,20 +100,20 @@ func (s *DBStore) seedPeople() error {
 	return nil
 }
 
-func (s *DBStore) seedPerson(name string) error {
-	person, err := types.NewPerson(name)
+func (s *DBStore) seedMessage(text, username string) error {
+	message, err := types.NewMessage(text, username)
 	if err != nil {
 		log.Fatal(err)
 		return err
 	}
 
-	id, err := s.CreatePerson(person)
+	id, err := s.CreateMessage(message)
 	if err != nil {
 		log.Fatal(err)
 		return err
 	}
 
-	fmt.Println("new person => ", id)
+	fmt.Println("new message => ", id)
 
 	return nil
 }

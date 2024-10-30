@@ -1,24 +1,29 @@
 <script lang="ts">
-  interface People {
+  interface Message {
     id: number;
-    name: string;
+    text: string;
+    username: string;
   }
   
-  const getPeople = async (): Promise<People[]> => {
-    const res = await fetch('/api/v1/people', {
+  const getMessages = async (): Promise<Message[]> => {
+    const res = await fetch('/api/v1/messages', {
       headers: {'Access-Control-Allow-Origin': '*'}
     });
     return await res.json();
   };
 </script>
 
-{#await getPeople()}
-  <p>Loading data...</p>
-{:then people}
-  {#each people as person}
-    <p>Hello {person.name}!</p>
+{#await getMessages()}
+  <p>Loading messages...</p>
+{:then messages}
+  {#each messages as message}
+    <div>
+      <p>{message.text}</p>
+      <p>{message.username} - {message.createdAt}</p>
+      <br/>
+    </div>
   {/each}
 {:catch error}
-  <p>Cannot load data</p>
+  <p>Cannot load message</p>
   <p>{error.message}</p>
 {/await}
