@@ -1,4 +1,9 @@
 ---
+import SignUpModal from '@components/SignUpModal.astro';
+import LogInModal from '@components/LogInModal.astro';
+
+import Toast from '@components/Toast.astro';
+
 interface Props {
 	title: string;
 }
@@ -6,7 +11,7 @@ interface Props {
 const { title } = Astro.props;
 ---
 
-<!doctype html>
+<!DOCTYPE HTML>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
@@ -16,8 +21,22 @@ const { title } = Astro.props;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
-	<body>
+	<body
+		x-data="{ title: 'Default Toast Notification', description: '', type: 'success', position: 'top-right', expanded: false, popToast (custom) { let html = ''; if (typeof custom != 'undefined') { html = custom; } toast(this.title, { description: this.description, type: this.type, position: this.position, html: html }) } }"
+		@keydown.escape.window="$store.modalOpen = false"
+    :class="{ 'z-40': $store.modalOpen }"
+    x-init=" window.toast = function(message, options = {}) { let description = ''; let type = 'success'; let position = 'bottom-right'; let html = ''; if (typeof options.description != 'undefined') description = options.description; if (typeof options.type != 'undefined') type = options.type; if (typeof options.position != 'undefined') position = options.position; if (typeof options.html != 'undefined') html = options.html; window.dispatchEvent(new CustomEvent('toast-show', { detail : { type: type, message: message, description: description, position : position, html: html }})); }">
+		<button @click="$store.modalOpen='sign-up'" class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium transition-colors bg-white border rounded-md hover:bg-neutral-100 active:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-neutral-200/60 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none">Sign Up</button>
+ 		<button @click="$store.modalOpen='log-in'" class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium transition-colors bg-white border rounded-md hover:bg-neutral-100 active:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-neutral-200/60 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none">Log In</button>
+		
 		<slot />
+		
+		<SignUpModal />
+		<LogInModal />
+
+		<Toast />
+
+		<script src='../alpine/base.ts'></script>
 	</body>
 </html>
 <style is:global>
