@@ -50,6 +50,7 @@ func (s *APIServer) Run() {
 
 
 	// Message handlers:
+	r.HandleFunc("/message/{id}", makeHTTPHandlerFunc(s.handleMessage))
 	r.HandleFunc("/messages", makeHTTPHandlerFunc(s.handleMessages))
 
 

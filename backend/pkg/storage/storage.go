@@ -22,6 +22,7 @@ type Storage interface {
 	UpdateUser(*types.User) error
 	DeleteUser(string) error
 	
+	GetMessage(string) (*types.Message, error)
 	GetMessages() ([]*types.Message, error)
 }
 

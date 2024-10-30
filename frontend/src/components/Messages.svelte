@@ -1,8 +1,9 @@
 <script lang="ts">
   interface Message {
-    id: number;
+    id: string;
     text: string;
     username: string;
+    createdAt: string;
   }
   
   const getMessages = async (): Promise<Message[]> => {
@@ -17,11 +18,11 @@
   <p>Loading messages...</p>
 {:then messages}
   {#each messages as message}
-    <div>
+    <a href={`/${message.id}`}>
       <p>{message.text}</p>
       <p>{message.username} - {message.createdAt}</p>
       <br/>
-    </div>
+    </a>
   {/each}
 {:catch error}
   <p>Cannot load message</p>

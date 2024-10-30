@@ -1,0 +1,12 @@
+---
+import Message from '../components/Message.svelte';
+
+const { id } = Astro.params;
+---
+
+<a href='/'>Back</a>
+
+<Message
+  client:load
+  id={id}
+/>

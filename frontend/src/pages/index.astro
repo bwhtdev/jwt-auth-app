@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import LoadData from '../components/LoadData.svelte';
+import Messages from '../components/Messages.svelte';
 ---
 
 <Layout title="Welcome to Astro.">
@@ -34,7 +34,7 @@ import LoadData from '../components/LoadData.svelte';
 			</defs>
 		</svg>
 		<h1>Welcome to <span class="text-gradient">Astro</span></h1>
-    <LoadData client:load />
+    <Messages client:load />
 	</main>
 </Layout>
 

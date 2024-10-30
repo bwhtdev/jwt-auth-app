@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	"database/sql"
 	types "backend/pkg/types"
@@ -18,6 +19,21 @@ func (s *DBStore) CreateMessage(message *types.Message) (uuid.UUID, error) {
 		return uuid.New(), err
 	}
 	return id, nil
+}
+
+func (s *DBStore) GetMessage(id string) (*types.Message, error) {
+	query := `SELECT * FROM messages
+		WHERE id = $1;`
+	rows, err := s.db.Query(query, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if rows.Next() {
+		return scanIntoMessage(rows)
+	}
+	
+	return nil, fmt.Errorf("message %s not found", id)
 }
 
 func (s *DBStore) GetMessages() ([]*types.Message, error) {
