@@ -14,8 +14,6 @@ type Message struct {
 
 type CreateMessageRequest struct {
 	Text      string    `json:"text"`
-	Username  string    `json:"username"`
-	CreatedAt time.Time `json:"createdAt"`
 }
 
 func NewMessage(text, username string) (*Message, error) {

@@ -38,21 +38,21 @@ func (s *APIServer) Run() {
 	r.HandleFunc("/ping", makeHTTPHandlerFunc(s.handlePing))
 
 	// User handlers:
-	r.HandleFunc("/login", makeHTTPHandlerFunc(s.handleLogin))
+	r.HandleFunc("/log-in", makeHTTPHandlerFunc(s.handleLogin))
 	r.HandleFunc("/sign-up", makeHTTPHandlerFunc(s.handleSignUp))
 
-	// r.HandleFunc("/user", makeHTTPHandlerFunc(s.handleUser))
-	// r.HandleFunc("/user/id/{id}", makeHTTPHandlerFunc(s.handleUserByID))
-	// r.HandleFunc("/user/username/{username}", makeHTTPHandlerFunc(s.handleUserByUsername))
-	
-	//r.HandleFunc("/delete-account/{username}", makeHTTPHandlerFunc(s.handleDeleteAccount))
+	/*r.HandleFunc("/user", makeHTTPHandlerFunc(s.handleUser))
+	r.HandleFunc("/user/id/{id}", makeHTTPHandlerFunc(s.handleUserByID))
+	r.HandleFunc("/user/username/{username}", makeHTTPHandlerFunc(s.handleUserByUsername))*/
 	r.HandleFunc("/delete-account/{username}", withJWTAuth(makeHTTPHandlerFunc(s.handleDeleteAccount)))
 
 
 	// Message handlers:
+	r.HandleFunc("/message/new/{username}", makeHTTPHandlerFunc(s.handleCreateMessage))
+	//r.HandleFunc("/message/new/{username}", withJWTAuth(makeHTTPHandlerFunc(s.handleCreateMessage)))
+	//---->>!!!add auth to every except just get message route
 	r.HandleFunc("/message/{id}", makeHTTPHandlerFunc(s.handleMessage))
 	r.HandleFunc("/messages", makeHTTPHandlerFunc(s.handleMessages))
-
 
 	c := cors.New(cors.Options{
 		//AllowedOrigins: []string{webPort},

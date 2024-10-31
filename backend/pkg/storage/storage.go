@@ -21,7 +21,10 @@ type Storage interface {
 	//GetUsers() ([]*types.User, error)
 	UpdateUser(*types.User) error
 	DeleteUser(string) error
-	
+
+	CreateMessage(*types.Message) (uuid.UUID, error)
+	//UpdateMessage(*types.Message) error
+	//DeleteMessage(string) error
 	GetMessage(string) (*types.Message, error)
 	GetMessages() ([]*types.Message, error)
 }
