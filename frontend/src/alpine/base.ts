@@ -1,6 +1,6 @@
 import Alpine from 'alpinejs';
-import { /*isLoggedIn,*/ setToken, getToken, getUsername, setUsername } from './authUtils';
-import { addNewMessage/*,updateMessage, removeMessage*/ } from '@components/messageStore';
+import { setToken, getToken, getUsername, setUsername } from './authUtils';
+import { addNewMessage, updateMessage/*, removeMessage*/ } from '@components/messageStore';
 import { username, loggedIn } from '@components/authStore';
 
 document.addEventListener('alpine:init', () => {
@@ -108,6 +108,45 @@ document.addEventListener('alpine:init', () => {
         })
         .catch(err => {
           this.title = 'Message unsuccessful!';
+          this.description = err;
+          this.type = 'danger';
+          this.popToast();
+        });
+    },
+  }));
+
+  Alpine.data('editMessageData', () => ({
+    editMessage() {
+      const username = getUsername();
+      const token = getToken();
+
+      fetch(`/api/v1/message/${username}`, {
+        method: 'POST',
+        body: JSON.stringify({ id: this.messageId, text: this.messageText, username }),
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            this.title = 'Message editing unsuccessful!';
+            this.type = 'danger';
+            this.popToast();
+          } else {
+            updateMessage(data.id, data);
+            
+            this.title = 'Message edited successfully!';
+            this.type = 'success';
+            this.popToast();
+
+            Alpine.store('modalOpen', false);
+            this.messageText = '';
+          }
+        })
+        .catch(err => {
+          this.title = 'Message editing unsuccessful!';
           this.description = err;
           this.type = 'danger';
           this.popToast();

@@ -1,6 +1,10 @@
 <script lang='ts'> 
   let { id } = $props();
 
+  import EditMessageBtn from './EditMessageBtn.svelte';
+
+  import { loggedIn, username } from './authStore';
+
   interface Message {
     id: string;
     text: string;
@@ -19,11 +23,20 @@
 {#await getMessage()}
   <p>Loading message...</p>
 {:then message}
-  <div>
-    <p>{message.text}</p>
-    <p>{message.username} - {message.createdAt}</p>
-  </div>
+  {#if !message.error}
+    <div>
+      <p>{message.text}</p>
+      <p>{message.username} - {message.createdAt}</p>
+    </div>
+
+    {#if $loggedIn && message.username == $username}
+      <EditMessageBtn id={id} text={message.text} />
+      <!--<DeleteMessageBtn />-->
+    {/if}
+  {:else}
+    <p>Message does not exist.</p>
+  {/if}
 {:catch error}
-  <p>Cannot load message</p>
+  <p>Cannot load message.</p>
   <p>{error.message}</p>
 {/await}  
