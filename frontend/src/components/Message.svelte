@@ -27,7 +27,7 @@
   {#if !message.error}
     <div x-init={`messageId='${message.id}';messageText='${message.text}'`}>
       <p x-text='messageText'></p>
-      <p>{message.username} - {message.createdAt}</p>
+      <p>{message.username} - {new Date(message.createdAt).toDateString()}</p>
     </div>
 
     {#if $loggedIn && message.username == $username}

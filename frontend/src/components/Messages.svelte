@@ -16,7 +16,7 @@
   {#each $messageData as message}
     <a href={`/${message.id}`}>
       <p>{message.text}</p>
-      <p>{message.username} - {message.createdAt}</p>
+      <p>{message.username} - {new Date(message.createdAt).toDateString()}</p>
       <br/>
     </a>
   {/each}
