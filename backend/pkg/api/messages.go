@@ -41,13 +41,16 @@ func (s *APIServer) handleUpdateMessage(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *APIServer) handleDeleteMessage(w http.ResponseWriter, r *http.Request) error {
-	id := getID(r, "id")
+	_, req, err := GetBodyData[types.DeleteMessageRequest](r)
+	if err != nil {
+		return err
+	}
 	
-	if err := s.store.DeleteMessage(id); err != nil {
+	if err := s.store.DeleteMessage(req.ID); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, map[string]string{ "deleted": id })
+	return WriteJSON(w, http.StatusOK, map[string]string{ "deleted": req.ID })
 }
 
 func (s *APIServer) handleMessages(w http.ResponseWriter, r *http.Request) error {

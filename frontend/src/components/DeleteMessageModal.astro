@@ -1,0 +1,13 @@
+---
+import Modal from './Modal.astro';
+---
+
+<Modal
+  id='delete-message'
+  title='Delete Message'
+  data='deleteMessageData'
+  fn='deleteMessage'
+  btnText='Delete Message'
+>
+  <p x-text='messageText'></p>
+</Modal>

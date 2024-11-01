@@ -33,13 +33,12 @@ func (s *DBStore) UpdateMessage(message *types.UpdateMessageRequest) error {
 }
 
 func (s *DBStore) DeleteMessage(id string) error {	
-	query := `DELETE FROM messages
-		WHERE id = $1;`
-	_, err := s.db.Exec(query, id)
+	_, err := s.db.Query("DELETE FROM messages WHERE id = $1;", id)
 	return err
 }
 
 func (s *DBStore) GetMessage(id string) (*types.Message, error) {
+	fmt.Println(id)
 	query := `SELECT * FROM messages
 		WHERE id = $1;`
 	rows, err := s.db.Query(query, id)

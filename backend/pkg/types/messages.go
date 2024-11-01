@@ -14,12 +14,17 @@ type Message struct {
 
 type CreateMessageRequest struct {
 	Text      string    `json:"text"`
-	Username  string    `json:"text"`
+	Username  string    `json:"username"`
 }
 
 type UpdateMessageRequest struct {
 	ID        uuid.UUID `json:"id"`
 	Text      string    `json:"text"`
+}
+
+type DeleteMessageRequest struct {
+	ID        string    `json:"id"`
+	Username  string    `json:"username"`
 }
 
 func NewMessage(text, username string) (*Message, error) {

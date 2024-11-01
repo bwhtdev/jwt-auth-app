@@ -2,6 +2,7 @@
   let { id } = $props();
 
   import EditMessageBtn from './EditMessageBtn.svelte';
+  import DeleteMessageBtn from './DeleteMessageBtn.svelte';
 
   import { loggedIn, username } from './authStore';
 
@@ -24,14 +25,14 @@
   <p>Loading message...</p>
 {:then message}
   {#if !message.error}
-    <div x-init={`messageText='${message.text}'`}>
+    <div x-init={`messageId='${message.id}';messageText='${message.text}'`}>
       <p x-text='messageText'></p>
       <p>{message.username} - {message.createdAt}</p>
     </div>
 
     {#if $loggedIn && message.username == $username}
-      <EditMessageBtn id={id} text={message.text} />
-      <!--<DeleteMessageBtn />-->
+      <EditMessageBtn />
+      <DeleteMessageBtn />
     {/if}
   {:else}
     <p>Message does not exist.</p>

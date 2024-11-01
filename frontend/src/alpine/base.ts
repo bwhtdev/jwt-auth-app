@@ -1,6 +1,6 @@
 import Alpine from 'alpinejs';
 import { setToken, getToken, getUsername, setUsername } from './authUtils';
-import { addNewMessage, updateMessage/*, removeMessage*/ } from '@components/messageStore';
+import { addNewMessage, updateMessage, removeMessage } from '@components/messageStore';
 import { username, loggedIn } from '@components/authStore';
 
 document.addEventListener('alpine:init', () => {
@@ -81,6 +81,7 @@ document.addEventListener('alpine:init', () => {
       const username = getUsername();
       const token = getToken();
 
+console.log(JSON.stringify({ text: this.messageText, username }));
       fetch(`/api/v1/message/new/${username}`, {
         method: 'POST',
         body: JSON.stringify({ text: this.messageText, username }),
@@ -146,6 +147,47 @@ document.addEventListener('alpine:init', () => {
         })
         .catch(err => {
           this.title = 'Message editing unsuccessful!';
+          this.description = err;
+          this.type = 'danger';
+          this.popToast();
+        });
+    },
+  }));
+   
+  Alpine.data('deleteMessageData', () => ({
+    deleteMessage() {
+      const username = getUsername();
+      const token = getToken();
+
+      fetch(`/api/v1/message/${username}`, {
+        method: 'DELETE',
+        body: JSON.stringify({ id: this.messageId, username }),
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            this.title = 'Message deletion unsuccessful!';
+            this.type = 'danger';
+            this.popToast();
+          } else {
+            removeMessage(this.messageId);
+            this.messageText = '';
+            
+            this.title = 'Message deleted successfully!';
+            this.type = 'success';
+            this.popToast();
+
+            Alpine.store('modalOpen', false);
+
+            window.location.href = '/';
+          }
+        })
+        .catch(err => {
+          this.title = 'Message deletion unsuccessful!';
           this.description = err;
           this.type = 'danger';
           this.popToast();
