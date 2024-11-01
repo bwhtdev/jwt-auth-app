@@ -1,7 +1,10 @@
 import Alpine from 'alpinejs';
-import { setToken, getToken/*, eraseToken*/, getUsername, setUsername/*, eraseUsername*/ } from './authUtils';
+import { /*isLoggedIn,*/ setToken, getToken, getUsername, setUsername } from './authUtils';
+import { addNewMessage/*,updateMessage, removeMessage*/ } from '@components/messageStore';
+import { username, loggedIn } from '@components/authStore';
 
 document.addEventListener('alpine:init', () => {
+
   Alpine.store('modalOpen', false);
   
   Alpine.data('signUpData', () => ({
@@ -42,10 +45,16 @@ document.addEventListener('alpine:init', () => {
         .then(res => res.json())
         .then(data => {
           if (data.error) {
+            loggedIn.set(true);
+            username.set(this.username);
+
             this.title = 'User log in unsuccessful!';
             this.type = 'danger';
             this.popToast();
           } else {
+            loggedIn.set(true);
+            username.set(data.username);
+
             setToken(data.token);
             setUsername(data.username);
             
@@ -74,7 +83,7 @@ document.addEventListener('alpine:init', () => {
 
       fetch(`/api/v1/message/new/${username}`, {
         method: 'POST',
-        body: JSON.stringify({ text: this.messageText }),
+        body: JSON.stringify({ text: this.messageText, username }),
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Authorization': `Bearer ${token}`
@@ -87,7 +96,7 @@ document.addEventListener('alpine:init', () => {
             this.type = 'danger';
             this.popToast();
           } else {
-            // Refresh data??
+            addNewMessage(data);
             
             this.title = 'Message created successfully!';
             this.type = 'success';

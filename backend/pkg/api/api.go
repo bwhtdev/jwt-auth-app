@@ -48,8 +48,7 @@ func (s *APIServer) Run() {
 
 
 	// Message handlers:
-	r.HandleFunc("/message/new/{username}", makeHTTPHandlerFunc(s.handleCreateMessage))
-	//r.HandleFunc("/message/new/{username}", withJWTAuth(makeHTTPHandlerFunc(s.handleCreateMessage)))
+	r.HandleFunc("/message/new/{username}", withJWTAuth(makeHTTPHandlerFunc(s.handleCreateMessage)))
 	//---->>!!!add auth to every except just get message route
 	r.HandleFunc("/message/{id}", makeHTTPHandlerFunc(s.handleMessage))
 	r.HandleFunc("/messages", makeHTTPHandlerFunc(s.handleMessages))

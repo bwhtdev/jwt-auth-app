@@ -1,11 +1,11 @@
 ---
 import Layout from '@layouts/Layout.astro';
 import Messages from '@components/Messages.svelte';
-import CreateMessageBtn from '@components/CreateMessageBtn.astro';
+import CreateMessageBtn from '@components/CreateMessageBtn.svelte';
 ---
 
 <Layout title="Welcome to Astro.">
   <Messages client:load />
 
-  <CreateMessageBtn />
+  <CreateMessageBtn client:load />
 </Layout>
