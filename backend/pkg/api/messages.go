@@ -1,14 +1,13 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
 	types "backend/pkg/types"
 )
 
-func (s *APIServer) handleMessage(w http.ResponseWriter, r *http.Request) error {
+func (s *APIServer) handleGetMessageById(w http.ResponseWriter, r *http.Request) error {
 	id := getID(r, "id")
 	
 	message, err := s.store.GetMessage(id)
@@ -17,6 +16,38 @@ func (s *APIServer) handleMessage(w http.ResponseWriter, r *http.Request) error 
 	}
 	
 	return WriteJSON(w, http.StatusOK, message)
+}
+
+func (s *APIServer) handleMessage(w http.ResponseWriter, r *http.Request) error {
+	if r.Method == "POST" {
+		return s.handleUpdateMessage(w, r)
+	} else if r.Method == "DELETE" {
+		return s.handleDeleteMessage(w, r)
+	}
+	return fmt.Errorf("method not allowed %s", r.Method)
+}
+
+func (s *APIServer) handleUpdateMessage(w http.ResponseWriter, r *http.Request) error {	
+	_, req, err := GetBodyData[types.UpdateMessageRequest](r)
+	if err != nil {
+		return err
+	}
+
+	if err = s.store.UpdateMessage(req); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, req)
+}
+
+func (s *APIServer) handleDeleteMessage(w http.ResponseWriter, r *http.Request) error {
+	id := getID(r, "id")
+	
+	if err := s.store.DeleteMessage(id); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, map[string]string{ "deleted": id })
 }
 
 func (s *APIServer) handleMessages(w http.ResponseWriter, r *http.Request) error {
@@ -30,14 +61,12 @@ func (s *APIServer) handleMessages(w http.ResponseWriter, r *http.Request) error
 
 func (s *APIServer) handleCreateMessage(w http.ResponseWriter, r *http.Request) error {	
 	if r.Method == "POST" {
-		username := getID(r, "username")
-		
-	    req := new(types.CreateMessageRequest)
-	    if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		_, req, err := GetBodyData[types.CreateMessageRequest](r)
+		if err != nil {
 			return err
-	    }
+		}
 
-	    message, err := types.NewMessage(req.Text, username)
+	    message, err := types.NewMessage(req.Text, req.Username)
 	    if err != nil {
 	      return err
 	    }

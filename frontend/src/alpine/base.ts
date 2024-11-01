@@ -142,7 +142,6 @@ document.addEventListener('alpine:init', () => {
             this.popToast();
 
             Alpine.store('modalOpen', false);
-            this.messageText = '';
           }
         })
         .catch(err => {

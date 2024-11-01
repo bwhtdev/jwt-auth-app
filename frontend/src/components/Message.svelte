@@ -13,7 +13,7 @@
   }
   
   const getMessage = async (): Promise<Message> => {
-    const res = await fetch(`/api/v1/message/${id}`, {
+    const res = await fetch(`/api/v1/message/id/${id}`, {
       headers: {'Access-Control-Allow-Origin': '*'}
     });
     return await res.json();
@@ -24,8 +24,8 @@
   <p>Loading message...</p>
 {:then message}
   {#if !message.error}
-    <div>
-      <p>{message.text}</p>
+    <div x-init={`messageText='${message.text}'`}>
+      <p x-text='messageText'></p>
       <p>{message.username} - {message.createdAt}</p>
     </div>
 

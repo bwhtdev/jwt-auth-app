@@ -23,8 +23,8 @@ type Storage interface {
 	DeleteUser(string) error
 
 	CreateMessage(*types.Message) (uuid.UUID, error)
-	//UpdateMessage(*types.Message) error
-	//DeleteMessage(string) error
+	UpdateMessage(*types.UpdateMessageRequest) error
+	DeleteMessage(string) error
 	GetMessage(string) (*types.Message, error)
 	GetMessages() ([]*types.Message, error)
 }

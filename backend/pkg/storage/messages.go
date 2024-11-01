@@ -21,6 +21,24 @@ func (s *DBStore) CreateMessage(message *types.Message) (uuid.UUID, error) {
 	return id, nil
 }
 
+func (s *DBStore) UpdateMessage(message *types.UpdateMessageRequest) error {	
+	query := `UPDATE messages
+		SET text = $2
+		WHERE id = $1;`
+	_, err := s.db.Exec(query, message.ID, message.Text)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *DBStore) DeleteMessage(id string) error {	
+	query := `DELETE FROM messages
+		WHERE id = $1;`
+	_, err := s.db.Exec(query, id)
+	return err
+}
+
 func (s *DBStore) GetMessage(id string) (*types.Message, error) {
 	query := `SELECT * FROM messages
 		WHERE id = $1;`

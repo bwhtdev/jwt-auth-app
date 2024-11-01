@@ -27,7 +27,7 @@ const { title } = Astro.props;
 		<title>{title}</title>
 	</head>
 	<body
-		x-data="{ username: '', password: '', messageText: '', title: 'Default Toast Notification', description: '', type: 'success', position: 'top-right', expanded: false, popToast (custom) { let html = ''; if (typeof custom != 'undefined') { html = custom; } toast(this.title, { description: this.description, type: this.type, position: this.position, html: html }) } }"
+		x-data="{ username: '', password: '', messageId: '', messageText: '', title: 'Default Toast Notification', description: '', type: 'success', position: 'top-right', expanded: false, popToast (custom) { let html = ''; if (typeof custom != 'undefined') { html = custom; } toast(this.title, { description: this.description, type: this.type, position: this.position, html: html }) } }"
 		@keydown.escape.window="$store.modalOpen = false"
     :class="{ 'z-40': $store.modalOpen }"
     x-init=" window.toast = function(message, options = {}) { let description = ''; let type = 'success'; let position = 'bottom-right'; let html = ''; if (typeof options.description != 'undefined') description = options.description; if (typeof options.type != 'undefined') type = options.type; if (typeof options.position != 'undefined') position = options.position; if (typeof options.html != 'undefined') html = options.html; window.dispatchEvent(new CustomEvent('toast-show', { detail : { type: type, message: message, description: description, position : position, html: html }})); }">
