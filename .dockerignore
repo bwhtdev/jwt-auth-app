@@ -1,0 +1,45 @@
+# flyctl launch added from .gitignore
+**/db/password.txt
+**/.DS_Store
+**/*/.env
+**/.env
+
+# flyctl launch added from backend/.gitignore
+backend/**/go.sum
+backend/tmp
+
+# flyctl launch added from frontend/.gitignore
+# build output
+frontend/**/dist
+# generated types
+frontend/**/.astro
+
+# dependencies
+frontend/**/node_modules
+
+# logs
+frontend/**/npm-debug.log*
+frontend/**/yarn-debug.log*
+frontend/**/yarn-error.log*
+frontend/**/pnpm-debug.log*
+
+
+# environment variables
+frontend/**/.env
+frontend/**/.env.production
+
+# macOS-specific files
+frontend/**/.DS_Store
+
+# jetbrains setting folder
+frontend/**/.idea
+
+# flyctl launch added from frontend/node_modules/.pnpm/@astrojs+tailwind@5.1.2_astro@4.16.7_@types+node@17.0.45_rollup@4.24.3_typescript@5.6.3__tailwindcss@3.4.14/node_modules/tailwindcss/stubs/.gitignore
+!frontend/node_modules/.pnpm/@astrojs+tailwind@5.1.2_astro@4.16.7_@types+node@17.0.45_rollup@4.24.3_typescript@5.6.3__tailwindcss@3.4.14/node_modules/tailwindcss/stubs/**/*
+
+# flyctl launch added from frontend/node_modules/.pnpm/tailwindcss@3.4.14/node_modules/tailwindcss/stubs/.gitignore
+!frontend/node_modules/.pnpm/tailwindcss@3.4.14/node_modules/tailwindcss/stubs/**/*
+
+# flyctl launch added from frontend/node_modules/tailwindcss/stubs/.gitignore
+!frontend/node_modules/tailwindcss/stubs/**/*
+fly.toml
